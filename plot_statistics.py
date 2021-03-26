@@ -13,7 +13,7 @@ class Validate():
 
         self.analysis_path = analysis_path
         self.quantity = quantity
-        self.save_path = os.path.join(analysis_path, 'plots')
+        self.save_path = os.path.join(analysis_path, '..', 'plots')
         self.versions = ['2.20.1', 'master-rng']
         self.all_sim_hashes = {}
         for version in self.versions:
@@ -60,7 +60,11 @@ class Validate():
 # INTERNAL FUNCTIONS
 
     def _fetch_sim_hashes(self, version):
-        return os.listdir(path=os.path.join(self.analysis_path, version))
+        sim_hashes = os.listdir(path=os.path.join(self.analysis_path, version))
+        for annoying_macos_dir in ['.DS_Store', '._.DS_Store']:
+            while annoying_macos_dir in sim_hashes:
+                sim_hashes.remove(annoying_macos_dir)
+        return sim_hashes
 
     def _load_data(self, version):
 
@@ -140,7 +144,7 @@ class Validate():
 
 for quantity in ['rates', 'cv_isi', 'cc']:
     validate = Validate(
-        analysis_path='/p/project/cjinb33/albers2/data/rng',
+        analysis_path='./data',
         quantity=quantity)
     validate.plot_ks_score()
     # validate.plot_hist('V1','4','I')
