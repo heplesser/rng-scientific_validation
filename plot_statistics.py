@@ -228,6 +228,7 @@ if __name__ == '__main__':
         plt.colorbar(ax, cax=ax_cb, orientation='horizontal', label='p-value', shrink=0.5)
 
         plt.savefig(os.path.join(validate.save_path, f'rngtest_mam_{short}-test.pdf'))
+        plt.savefig(os.path.join(validate.save_path, f'rngtest_mam_{short}-test.png'))
 
     plt.show()
 
