@@ -9,31 +9,36 @@ import seaborn as sns
 import scipy as sp
 from statsmodels.graphics.gofplots import qqplot_2samples
 import xarray as xr
+import json
+import numpy as np
 
 
 class Validate:
-    def __init__(self, analysis_path, quantity):
+    def __init__(self, analysis_path, quantity, model, versions):
 
         self.analysis_path = analysis_path
         self.quantity = quantity
-        self.save_path = os.path.join(analysis_path, '..', 'plots')
-        self.versions = ['2.20.1', 'master-rng']
-        self.all_sim_hashes = {}
-        for version in self.versions:
-            self.all_sim_hashes[version] = self._fetch_sim_hashes(version)
+        self.save_path = os.path.join(analysis_path, '..', '..', 'plots')
+        self.model = model
+        self.versions = versions
 
-        self.colors = {
-            'master-rng': '#ee7733',
-            '2.20.1': '#01796f'
-        }
-
-        self.load_data()
+        # TODO add sth similar for 4x4 if needed
+        if self.model== 'mam': 
+            self.colors = {
+                'master-rng': '#ee7733',
+                '2.20.1': '#01796f'
+            }
         sns.set()
 
     def load_data(self):
         data = {}
         for version in self.versions:
-            data[version] = self._load_data(version)
+            if self.model == 'mam':
+                data[version] = self._load_data_mam(version)
+            elif self.model == '4x4':
+                data[version] = self._load_data_4x4(version)
+            else:
+                raise Exception(f'No data loading implemented for {self.model}')
         self.data = data
 
 # USER ACCESSIBLE FUNCTIONS
@@ -84,11 +89,13 @@ class Validate:
                 sim_hashes.remove(annoying_macos_dir)
         return sim_hashes
 
-    def _load_data(self, version):
+    def _load_data_mam(self, version):
+
+        sim_hashes = self._fetch_sim_hashes(version)
 
         sample_data = pd.read_pickle(os.path.join(
             self.analysis_path, version,
-            self.all_sim_hashes[version][0],
+            sim_hashes[0],
             '348cd785d210258c0da5cceaee62b897',
             self.quantity + '.pkl')).to_xarray()
 
@@ -96,7 +103,7 @@ class Validate:
         dummy_data_array = np.zeros((np.shape(sample_data)[0],
                                      np.shape(sample_data)[1],
                                      np.shape(sample_data)[2],
-                                     len(self.all_sim_hashes[version])))
+                                     len(sim_hashes)))
 
         self.areas = sample_data.coords['area'].values
         self.layers = sample_data.coords['layer'].values
@@ -107,13 +114,13 @@ class Validate:
             coords={'area': self.areas,
                     'layer': self.layers,
                     'pop': self.pops,
-                    'sim_hash': self.all_sim_hashes[version]},
+                    'sim_hash': sim_hashes},
             dims=['area',
                   'layer',
                   'pop',
                   'sim_hash'])
 
-        for sim_hash in self.all_sim_hashes[version]:
+        for sim_hash in sim_hashes:
             data.loc[:, :, :, sim_hash] = pd.read_pickle(
                 os.path.join(
                     self.analysis_path,
@@ -122,6 +129,44 @@ class Validate:
                     '348cd785d210258c0da5cceaee62b897',
                     self.quantity + '.pkl')).to_xarray()
         return data
+
+
+    def _load_data_4x4(self, version):
+        with open(os.path.join(
+            self.analysis_path, f'seed_comparison_nest_{version}.txt')) as f:
+            dic = json.load(f)
+
+        with open(os.path.join(self.analysis_path, 'psview_dict.txt')) as f:
+            psview = json.load(f)
+            master_seeds = psview['seed_mesocircuit']['custom_params'][
+                                  'ranges']['sim_dict']['master_seed']
+
+        self.areas = [''] # only one exists
+        self.layers = ['L23', 'L4', 'L5', 'L6']
+        self.pops = ['E', 'I']
+        num_samples = len(dic['FRs']['mean']['L23E']['values'])
+
+        data_array = np.zeros(
+            shape=(1, len(self.layers), len(self.pops), num_samples))
+
+        for l, layer in enumerate(self.layers):
+            for p, pop in enumerate(self.pops):
+                # take mean value per population
+                data_array[0, l, p] = \
+                    dic[self.quantity]['mean'][layer + pop]['values']
+
+        data = xr.DataArray(
+            data_array,
+            coords={'area': self.areas,
+                    'layer': self.layers,
+                    'pop': self.pops,
+                    'master_seeds': master_seeds},
+            dims=['area',
+                  'layer',
+                  'pop',
+                  'master_seeds'])
+        return data
+
 
     def _calc_ks_score(self):
         # Dummy array to initalize x-array for connection probabilities
@@ -166,6 +211,7 @@ class Validate:
                 for pop in self.pops:
                     x = self.data[self.versions[0]].loc[area, layer, pop]
                     y = self.data[self.versions[1]].loc[area, layer, pop]
+
                     if np.all(np.isfinite(x)) and np.all(np.isfinite(y)):
                         try:
                             pval.loc[area, layer, pop] = stest(x, y).pvalue
@@ -213,22 +259,33 @@ class Validate:
 
 
 if __name__ == '__main__':
-    for short, long, func in [('KS', 'Kolmogorov-Smirnov', sp.stats.kstest),
-                              ('ES', 'Epps-Singleton', sp.stats.epps_singleton_2samp)]:
-        fig = plt.figure(figsize=(7, 8))
-        fig.suptitle(f'Multi-area Model / {long} Test')
-        gs = GridSpec(4, 2, width_ratios=[1, 1], height_ratios=[4, 4, 4, 1])
 
-        for ix, quantity in enumerate(['rates', 'cv_isi', 'cc']):
-            validate = Validate(
-                analysis_path='./data',
-                quantity=quantity)
-            ax = validate.plot_p_val(func, short, quantity, ix, gs, fig)
-        ax_cb = fig.add_subplot(gs[-1, :])
-        plt.colorbar(ax, cax=ax_cb, orientation='horizontal', label='p-value', shrink=0.5)
+    model_specs = [('mam', 'Multi-Area Model',
+                    ['2.20.1', 'master-rng'],
+                    ['rates', 'cv_isi', 'cc']),
+                   ('4x4', '4x4mm2 Model',
+                    ['feature_cpp11-librandom_14211b8df', 'master_f1c0bcf43'],
+                    ['FRs', 'LVs', 'CCs'])] 
+    for modshort, modlong, versions, quantities in model_specs:
+        for statshort, statlong, func in [('KS', 'Kolmogorov-Smirnov', sp.stats.kstest),
+                                  ('ES', 'Epps-Singleton', sp.stats.epps_singleton_2samp)]:
+            fig = plt.figure(figsize=(7, 8))
+            fig.suptitle(f'{modlong} / {statlong} Test')
+            gs = GridSpec(4, 2, width_ratios=[1, 1], height_ratios=[4, 4, 4, 1])
 
-        plt.savefig(os.path.join(validate.save_path, f'rngtest_mam_{short}-test.pdf'))
-        plt.savefig(os.path.join(validate.save_path, f'rngtest_mam_{short}-test.png'))
+            for ix, quantity in enumerate(quantities):
+                validate = Validate(
+                    analysis_path=f'./data/{modshort}',
+                    quantity=quantity,
+                    model=modshort,
+                    versions=versions)
+                validate.load_data()
+                ax = validate.plot_p_val(func, statshort, quantity, ix, gs, fig)
+            ax_cb = fig.add_subplot(gs[-1, :])
+            plt.colorbar(ax, cax=ax_cb, orientation='horizontal', label='p-value', shrink=0.5)
+
+            plt.savefig(os.path.join(validate.save_path, f'rngtest_{modshort}_{statshort}-test.pdf'))
+            plt.savefig(os.path.join(validate.save_path, f'rngtest_{modshort}_{statshort}-test.png'))
 
     plt.show()
 

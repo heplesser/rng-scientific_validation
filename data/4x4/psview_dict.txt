@@ -1,0 +1,199 @@
+{
+  "seed_mesocircuit": {
+    "custom_params": {
+      "ranges": {
+        "sim_dict": {
+          "master_seed": [
+            55,
+            10,
+            20,
+            123,
+            987,
+            4579,
+            2178,
+            3493,
+            4095,
+            4479,
+            547,
+            7710,
+            3442,
+            7484,
+            6799,
+            6250,
+            3164,
+            6904,
+            5495,
+            9075,
+            9867,
+            5843,
+            6311,
+            4140,
+            232,
+            8216,
+            1054,
+            3512,
+            9504,
+            1884
+          ]
+        }
+      },
+      "values": {
+        "sim_dict": {
+          "t_sim": 10000
+        }
+      }
+    },
+    "paramsets": {
+      "029bc429c6b3396c3c22c4bc69989ff3": {
+        "sim_dict": {
+          "master_seed": 987
+        }
+      },
+      "04b3e8a14274563c32fae5dbdda252dd": {
+        "sim_dict": {
+          "master_seed": 7710
+        }
+      },
+      "071268924530ed5cae1eeec5061fa92b": {
+        "sim_dict": {
+          "master_seed": 6311
+        }
+      },
+      "081a5cb86c9071d203691368850a9c72": {
+        "sim_dict": {
+          "master_seed": 9504
+        }
+      },
+      "0a2548cec7d9ae4c843f32c2d236e11a": {
+        "sim_dict": {
+          "master_seed": 9075
+        }
+      },
+      "0aad46ea1285529b24a3682b5e0b3782": {
+        "sim_dict": {
+          "master_seed": 3493
+        }
+      },
+      "147d87cd888082279e7fd6376bad2a2a": {
+        "sim_dict": {
+          "master_seed": 3442
+        }
+      },
+      "16f0e1423723c0d33ea709122697f487": {
+        "sim_dict": {
+          "master_seed": 1054
+        }
+      },
+      "1d674c29bc568328d767d670518fa677": {
+        "sim_dict": {
+          "master_seed": 232
+        }
+      },
+      "20624bceaf453b43ba37641bc6f3c166": {
+        "sim_dict": {
+          "master_seed": 547
+        }
+      },
+      "3564bf43e3f9361f1c619597e488a7a3": {
+        "sim_dict": {
+          "master_seed": 4479
+        }
+      },
+      "55753ef62387b62dac6a9f09546567eb": {
+        "sim_dict": {
+          "master_seed": 10
+        }
+      },
+      "5f7b16cdcfd42e652fb03ff2b3c4900c": {
+        "sim_dict": {
+          "master_seed": 6799
+        }
+      },
+      "6b524dbe0e10a8f77961a198fbaa08c4": {
+        "sim_dict": {
+          "master_seed": 4579
+        }
+      },
+      "78825617b83a0319cfb97fe964607ae1": {
+        "sim_dict": {
+          "master_seed": 6904
+        }
+      },
+      "844e61337e2eb95c4d0ec2da14863126": {
+        "sim_dict": {
+          "master_seed": 7484
+        }
+      },
+      "87fce8923f9c2b2e62cb88ac87004795": {
+        "sim_dict": {
+          "master_seed": 8216
+        }
+      },
+      "8cc588f01568f3a78493a26a9c565299": {
+        "sim_dict": {
+          "master_seed": 3164
+        }
+      },
+      "93f06b0517f0627071ad7bab4087aac3": {
+        "sim_dict": {
+          "master_seed": 9867
+        }
+      },
+      "a11ec0b98b9b6367ec47b6a4d08f8914": {
+        "sim_dict": {
+          "master_seed": 4140
+        }
+      },
+      "a58092509d14c903e5700d2a2c811356": {
+        "sim_dict": {
+          "master_seed": 5843
+        }
+      },
+      "ad63d023113c68d49cc0b8e4a34b39f8": {
+        "sim_dict": {
+          "master_seed": 5495
+        }
+      },
+      "b57292ab8447c2882ba4f523302845f8": {
+        "sim_dict": {
+          "master_seed": 3512
+        }
+      },
+      "becb7872bbbe819b4bfc431ae8ce8712": {
+        "sim_dict": {
+          "master_seed": 6250
+        }
+      },
+      "c07546d3cd755405ee4b0a4b124cc126": {
+        "sim_dict": {
+          "master_seed": 2178
+        }
+      },
+      "c0cde46e354e50f187368ea61e51758e": {
+        "sim_dict": {
+          "master_seed": 1884
+        }
+      },
+      "c907fe26bb4652b8161362a1a149d475": {
+        "sim_dict": {
+          "master_seed": 55
+        }
+      },
+      "dd3fbff87f433e01b1dca0384ca5c095": {
+        "sim_dict": {
+          "master_seed": 20
+        }
+      },
+      "f137c14a6868abdb7edcc24b82befdfc": {
+        "sim_dict": {
+          "master_seed": 4095
+        }
+      },
+      "fa6264779b2418a4fad2a77b01653c66": {
+        "sim_dict": {
+          "master_seed": 123
+        }
+      }
+    }
+  }
+}
